@@ -1,29 +1,41 @@
 # BOB_USAGE.md
 
-This document records how each team member used IBM Bob during the TrustGate build.
+This document records how M. Muavia used IBM Bob during the TrustGate build.
 
-## Bilal Rafique
+## M. Muavia
 
-### Task 1: Base codebase security review
-- **Bob feature used**: Agent mode (code review)
-- **Files**: `app/routes.py`, `app/config.py`, `app/auth.py`
-- **Result**: Bob identified a hardcoded SECRET_KEY in `config.py` (line 4) and an unused `import hashlib` in `auth.py` (line 1). Bob also confirmed `routes.py` had no SQL injection in the base branch.
-- **Screenshot**: `screenshots/bilal_01.png`, `screenshots/bilal_02.png`
+### Task 1: PRD requirements extraction — Step A (Spec-Conformance)
+- **Bob feature used**: Agent mode + document understanding
+- **Files**: `PRD.pdf`
+- **Result**: Bob extracted 8 verified requirements from PRD.pdf with exact quotes under 15 words each.
+- **Screenshot**: `screenshots/muavia_1.png`
 
-### Task 2: SQL injection detection on buggy branch
-- **Bob feature used**: Agent mode (security review)
-- **File**: `app/routes.py` (branch: `issue-03-sql-injection`)
-- **Result**: Bob detected an f-string SQL injection at line 16 with the exact evidence quote:
-  `query = f"SELECT * FROM orders WHERE user_id = {user['id']}"`
-- **Screenshot**: `screenshots/bilal_03.png`
+### Task 2: Spec-Conformance check — issue-08-no-rate-limit
+- **Bob feature used**: Agent mode (Step B prompt)
+- **Branch**: `issue-08-no-rate-limit`
+- **Result**: 1 medium finding — login docstring promises throttling, body never performs it.
+- **Output**: `runs/spec_001.json`
+- **Screenshot**: `screenshots/muavia_2.png`
 
-### Task 3: Benchmark script review
-- **Bob feature used**: Agent mode (code review)
-- **File**: `bench/run_benchmark.py`
-- **Result**: Bob reviewed the benchmark loop logic and ground-truth comparison.
+### Task 3: Spec-Conformance check — issue-09-weak-hash
+- **Bob feature used**: Agent mode (Step B prompt)
+- **Branch**: `issue-09-weak-hash`
+- **Result**: 1 high finding — PBKDF2 replaced with unsalted MD5 in crypto.py line 7.
+- **Output**: `runs/spec_002.json`
+- **Screenshot**: `screenshots/muavia_3.png`
 
----
+### Task 4: Security Reviewer — issues 02, 03, 04, 10
+- **Bob feature used**: Agent mode (Security Reviewer prompt)
+- **Branches**: `issue-02-hardcoded-key`, `issue-03-sql-injection`, `issue-04-missing-auth`, `issue-10-debug-enabled`
+- **Result**: 4 high findings — hardcoded key, SQL injection, IDOR, Flask DEBUG=True.
+- **Output**: `runs/sec_001.json` through `runs/sec_005.json`
+- **Screenshot**: `screenshots/muavia_4.png`
 
-## Other Members
+### Task 5: False-positive check — clean branches
+- **Bob feature used**: Agent mode (both checkers)
+- **Branches**: `clean-01`, `clean-02`, `clean-03`
+- **Result**: 0 findings on all 3 clean branches. False-positive rate = 0%.
+- **Output**: `runs/sec_clean_*.json`, `runs/spec_clean_*.json`
+- **Screenshot**: `screenshots/muavia_5.png`
 
-(Add your sections below)
+**Note on document understanding**: Bob's document understanding was used in Step A to ingest PRD.pdf and extract only mechanically-verifiable requirements with exact quotes. If Bob cannot quote it from the document, it is not extracted — this prevents hallucinated requirements.
