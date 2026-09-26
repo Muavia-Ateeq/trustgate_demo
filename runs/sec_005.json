@@ -1,0 +1,20 @@
+{
+  "run_id": "sec_005",
+  "agent": "security_reviewer",
+  "member": "m-muavia",
+  "pr": "issue-10-debug-enabled",
+  "started_at": "2026-09-26T14:40:00+05:00",
+  "duration_sec": 33,
+  "bob_session": "screenshots/muavia_04.png",
+  "findings": [
+    {
+      "file": "app/config.py",
+      "line": 1,
+      "severity": "high",
+      "evidence": "DEBUG = True",
+      "explanation": "Debug mode is enabled in production configuration, exposing stack traces and internal details.",
+      "confidence": 0.98
+    }
+  ],
+  "status": "success"
+}
